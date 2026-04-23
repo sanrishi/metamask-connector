@@ -1,0 +1,121 @@
+{
+  "tool_name": "metamask_connector",
+  "job_to_be_done": "Look up Ethereum network metadata, wallet balances, and transaction receipts using a connected MetaMask account, with strict address validation and staged safety controls.",
+  "summary_for_model": "Read-only Ethereum JSON-RPC lookups (chain id, balance, transaction receipt) for MetaMask-connected wallets. Requires EIP-55 checksummed addresses. Quote/payment flows are stubbed for staged rollout.",
+  "trigger_conditions": [
+    "The owner asks for the chain/network ID or basic network metadata for a wallet session.",
+    "The owner asks to check the ETH balance of a specific Ethereum address (must be EIP-55 checksummed).",
+    "The owner provides a transaction hash and asks for its on-chain receipt/status."
+  ],
+  "do_not_use_when": [
+    "The request would broadcast a transaction or sign data; Phase 2/3 are not implemented in this listing."
+  ],
+  "permission_class": "payment",
+  "dry_run_supported": true,
+  "requires_connected_accounts": ["metamask"],
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "action": {
+        "type": "string",
+        "description": "Operation selector: chain_id | balance | tx_receipt."
+      },
+      "address": {
+        "type": "string",
+        "description": "EIP-55 checksummed Ethereum address (0x + 40 hex, mixed-case checksum). Required when action=balance."
+      },
+      "tx_hash": {
+        "type": "string",
+        "description": "Transaction hash (0x + 64 hex). Required when action=tx_receipt."
+      },
+      "expected_chain_id": {
+        "type": "integer",
+        "description": "Optional expected chain id (decimal). If provided and the RPC reports a different chain id, the call fails with a network mismatch receipt."
+      }
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_schema": {
+    "type": "object",
+    "properties": {
+      "summary": {
+        "type": "string",
+        "description": "One-line summary suitable for the owner UI."
+      },
+      "chain_id": {
+        "type": "string",
+        "description": "Chain id as a decimal string (e.g. '1')."
+      },
+      "network": {
+        "type": "string",
+        "description": "Best-effort network name (e.g. 'Ethereum Mainnet')."
+      },
+      "balance_wei": {
+        "type": "string",
+        "description": "Balance in wei as a base-10 string."
+      },
+      "balance_eth": {
+        "type": "string",
+        "description": "Balance in ETH as a decimal string."
+      },
+      "tx_receipt": {
+        "type": "object",
+        "description": "Raw transaction receipt object as returned by JSON-RPC, or empty if not available."
+      },
+      "amount_usd": {
+        "type": "number",
+        "description": "Payment-tier required field. For Phase 1 read-only calls this is always 0."
+      },
+      "currency": {
+        "type": "string",
+        "description": "Payment-tier required field. Always 'USD'."
+      }
+    },
+    "required": ["summary", "amount_usd", "currency"],
+    "additionalProperties": false
+  },
+  "usage_hints": [
+    "Default to action='chain_id' if the owner is vague.",
+    "Reject any address that is not strict EIP-55 checksummed; ask the owner for the checksummed form.",
+    "If expected_chain_id is provided, fail conservatively on mismatch and ask the owner to switch networks."
+  ],
+  "result_hints": [
+    "For balances, show chain_id and network before reporting balance_eth and balance_wei.",
+    "For receipts, summarize status and block number if present, then include the raw tx_receipt object."
+  ],
+  "error_hints": [
+    "If invalid address, explain that strict EIP-55 checksum is required and ask for the checksummed address.",
+    "If network mismatch, tell the owner the expected and actual chain ids and ask them to switch networks.",
+    "If RPC timeout, ask the owner to retry or use a different RPC endpoint."
+  ],
+  "approval_summary_template": "MetaMask Connector staged rollout: Phase 1 read-only lookup for {action}.",
+  "preview_schema": {
+    "type": "object",
+    "properties": {
+      "summary": { "type": "string" },
+      "action": { "type": "string" },
+      "address": { "type": "string" },
+      "tx_hash": { "type": "string" },
+      "expected_chain_id": { "type": "integer" }
+    },
+    "required": ["summary", "action"],
+    "additionalProperties": false
+  },
+  "idempotency_support": true,
+  "side_effect_summary": "Phase 1 has no external side effects (read-only JSON-RPC lookups). Phase 2/3 for signing/broadcast is intentionally not implemented in this listing.",
+  "quote_schema": {
+    "type": "object",
+    "properties": {
+      "amount_usd": { "type": "number" },
+      "currency": { "type": "string" },
+      "notes": { "type": "string" }
+    },
+    "required": ["amount_usd", "currency"],
+    "additionalProperties": false
+  },
+  "currency": "USD",
+  "settlement_mode": "embedded_wallet_charge",
+  "refund_or_cancellation_note": "No refunds for on-chain gas; subscription cancellations stop future access but do not reverse blockchain transactions.",
+  "jurisdiction": "US"
+}

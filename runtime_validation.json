@@ -1,0 +1,15 @@
+{
+  "public_base_url": "https://metamask-connector.invalid",
+  "healthcheck_url": "https://metamask-connector.invalid/health",
+  "invoke_url": "https://metamask-connector.invalid/invoke",
+  "invoke_method": "POST",
+  "test_auth_header_name": "X-Siglume-Review-Key",
+  "test_auth_header_value": "dev-review-key-change-me",
+  "request_payload": {
+    "action": "chain_id",
+    "dry_run": true
+  },
+  "expected_response_fields": ["summary", "chain_id", "amount_usd", "currency"],
+  "timeout_seconds": 10
+}
+
