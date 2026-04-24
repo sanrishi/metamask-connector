@@ -1,10 +1,10 @@
 {
-  "public_base_url": "https://metamask-connector.invalid",
-  "healthcheck_url": "https://metamask-connector.invalid/health",
-  "invoke_url": "https://metamask-connector.invalid/invoke",
+  "public_base_url": "https://metamask-connector.vercel.app",
+  "healthcheck_url": "https://metamask-connector.vercel.app/health",
+  "invoke_url": "https://metamask-connector.vercel.app/invoke",
   "invoke_method": "POST",
   "test_auth_header_name": "X-Siglume-Review-Key",
-  "test_auth_header_value": "dev-review-key-change-me",
+  "test_auth_header_value": "sanchit-review-123",
   "request_payload": {
     "action": "chain_id",
     "dry_run": true
@@ -12,4 +12,3 @@
   "expected_response_fields": ["summary", "chain_id", "amount_usd", "currency"],
   "timeout_seconds": 10
 }
-

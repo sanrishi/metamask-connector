@@ -7,7 +7,7 @@ from typing import Any
 
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ValidationError
 
 from adapter import MetaMaskConnectorApp
 from siglume_api_sdk import ConnectedAccountRef, Environment, ExecutionContext, ExecutionKind
@@ -67,7 +67,22 @@ async def health() -> JSONResponse:
 
 
 @app.post("/invoke")
-async def invoke(payload: InvokeRequest, request: Request) -> JSONResponse:
+async def invoke(request: Request) -> JSONResponse:
+    body = await request.json()
+    if not isinstance(body, dict):
+        return JSONResponse(
+            status_code=400,
+            content={"error": "invalid_request", "message": "Request body must be a JSON object."},
+        )
+
+    # Accept both:
+    # 1) {"input_params": {...}, "execution_kind": "...", "connected_accounts": {...}} (preferred)
+    # 2) {"action": "...", ...} (treat as input_params; default execution_kind=dry_run)
+    try:
+        payload = InvokeRequest.model_validate(body)
+    except ValidationError:
+        payload = InvokeRequest(input_params=dict(body))
+
     kind_raw = str(payload.execution_kind or "").strip().lower()
     try:
         execution_kind = ExecutionKind(kind_raw)
@@ -104,4 +119,3 @@ async def invoke(payload: InvokeRequest, request: Request) -> JSONResponse:
     )
     result = await _adapter.execute(ctx)
     return JSONResponse(_to_jsonable(result))
-
