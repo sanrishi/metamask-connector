@@ -118,4 +118,11 @@ async def invoke(request: Request) -> JSONResponse:
         idempotency_key=str(request.headers.get("Idempotency-Key") or "").strip() or None,
     )
     result = await _adapter.execute(ctx)
-    return JSONResponse(_to_jsonable(result))
+    output = dict(getattr(result, "output", {}) or {})
+    merged = {
+        **output,
+        "success": bool(getattr(result, "success", False)),
+        "execution_kind": getattr(getattr(result, "execution_kind", None), "value", getattr(result, "execution_kind", None)),
+        "units_consumed": int(getattr(result, "units_consumed", 0) or 0),
+    }
+    return JSONResponse(_to_jsonable(merged))

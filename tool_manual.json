@@ -31,6 +31,10 @@
       "expected_chain_id": {
         "type": "integer",
         "description": "Optional expected chain id (decimal). If provided and the RPC reports a different chain id, the call fails with a network mismatch receipt."
+      },
+      "dry_run": {
+        "type": "boolean",
+        "description": "If true, perform a safe preview with no side effects."
       }
     },
     "required": [],

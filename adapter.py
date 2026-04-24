@@ -53,7 +53,7 @@ class MetaMaskConnectorApp(AppAdapter):
             jurisdiction="US",
             applicable_regulations=["BSA"],
             short_description="Phase 1 read-only wallet lookups. Phase 2/3 quote/payment are stubbed for safety.",
-            docs_url="https://github.com/taihei-05/siglume-api-sdk/tree/main/metamask-connector",
+            docs_url="https://github.com/sanrishi/metamask-connector",
             support_contact="https://github.com/taihei-05/siglume-api-sdk/issues",
             example_prompts=[
                 "What chain is my wallet connected to?",
