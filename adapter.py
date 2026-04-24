@@ -57,7 +57,7 @@ class MetaMaskConnectorApp(AppAdapter):
             support_contact="https://github.com/taihei-05/siglume-api-sdk/issues",
             example_prompts=[
                 "What chain is my wallet connected to?",
-                "Check the ETH balance for 0x742d35CC6634c0532925a3B844bc9e7595F2Bd28",
+                "Check the ETH balance for 0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045",
                 "Look up the receipt for tx 0x...",
             ],
             compatibility_tags=["web3", "ethereum", "wallet", "metamask"],
@@ -109,26 +109,48 @@ class MetaMaskConnectorApp(AppAdapter):
 
     # Phase 2/3: stub only (must exist)
     async def execute_quote(self, ctx: ExecutionContext) -> ExecutionResult:
-        return _ok_result(
-            ctx,
+        return ExecutionResult(
+            success=False,
+            execution_kind=ctx.execution_kind,
+            provider_status="not_implemented",
+            error_message="Phase 2/3 not yet implemented",
             output={
                 "summary": "Phase 2/3 not yet implemented  stub only",
                 "amount_usd": 0.0,
                 "currency": "USD",
             },
-            receipt_note="Phase 2/3 not yet implemented  stub only",
+            receipt_summary={
+                "type": "error_receipt",
+                "error_code": "not_implemented",
+                "message": "Phase 2/3 not yet implemented  stub only",
+                "details": {"phase": "phase2_3_stub"},
+                "provider": "metamask",
+            },
+            needs_approval=False,
+            units_consumed=1,
         )
 
     # Phase 2/3: stub only (must exist)
     async def execute_payment(self, ctx: ExecutionContext) -> ExecutionResult:
-        return _ok_result(
-            ctx,
+        return ExecutionResult(
+            success=False,
+            execution_kind=ctx.execution_kind,
+            provider_status="not_implemented",
+            error_message="Phase 2/3 not yet implemented",
             output={
                 "summary": "Phase 2/3 not yet implemented  stub only",
                 "amount_usd": 0.0,
                 "currency": "USD",
             },
-            receipt_note="Phase 2/3 not yet implemented  stub only",
+            receipt_summary={
+                "type": "error_receipt",
+                "error_code": "not_implemented",
+                "message": "Phase 2/3 not yet implemented  stub only",
+                "details": {"phase": "phase2_3_stub"},
+                "provider": "metamask",
+            },
+            needs_approval=False,
+            units_consumed=1,
         )
 
     async def _handle_chain_id(self, ctx: ExecutionContext) -> ExecutionResult:
@@ -375,6 +397,8 @@ class _ReceiptResult:
 async def _eth_chain_id(ctx: ExecutionContext, *, connected: ConnectedAccountRef | None) -> _ChainIdResult:
     try:
         result = await _rpc(ctx, method="eth_chainId", params=[], connected=connected)
+    except _RpcMisconfiguration as exc:
+        return _ChainIdResult(value=None, error=_rpc_misconfiguration(ctx, exc, method="eth_chainId"))
     except _RpcTimeout as exc:
         return _ChainIdResult(value=None, error=_rpc_timeout(ctx, exc))
     except _RpcError as exc:
@@ -406,6 +430,8 @@ async def _eth_get_balance(
         return _BalanceResult(wei=0, eth="0", chain_id=None, error=chain_id.error)
     try:
         result = await _rpc(ctx, method="eth_getBalance", params=[address, "latest"], connected=connected)
+    except _RpcMisconfiguration as exc:
+        return _BalanceResult(wei=0, eth="0", chain_id=chain_id.value, error=_rpc_misconfiguration(ctx, exc, method="eth_getBalance"))
     except _RpcTimeout as exc:
         return _BalanceResult(wei=0, eth="0", chain_id=chain_id.value, error=_rpc_timeout(ctx, exc))
     except _RpcError as exc:
@@ -442,6 +468,8 @@ async def _eth_get_transaction_receipt(
         return _ReceiptResult(receipt=None, chain_id=None, error=chain_id.error)
     try:
         result = await _rpc(ctx, method="eth_getTransactionReceipt", params=[tx_hash], connected=connected)
+    except _RpcMisconfiguration as exc:
+        return _ReceiptResult(receipt=None, chain_id=chain_id.value, error=_rpc_misconfiguration(ctx, exc, method="eth_getTransactionReceipt"))
     except _RpcTimeout as exc:
         return _ReceiptResult(receipt=None, chain_id=chain_id.value, error=_rpc_timeout(ctx, exc))
     except _RpcError as exc:
@@ -487,9 +515,38 @@ class _RpcTimeout(RuntimeError):
         self.timeout_seconds = timeout_seconds
 
 
+class _RpcMisconfiguration(RuntimeError):
+    def __init__(self, message: str):
+        super().__init__(message)
+
+
+def _effective_environment_value(ctx: ExecutionContext) -> str:
+    ctx_env = getattr(ctx, "environment", None)
+    if ctx_env is not None:
+        return str(getattr(ctx_env, "value", ctx_env) or "").strip().lower()
+    return str(os.environ.get("SIGLUME_ENV") or "").strip().lower()
+
+
+def _is_live_environment(ctx: ExecutionContext) -> bool:
+    value = _effective_environment_value(ctx)
+    if value in {"sandbox", "test", "testing", "dev", "development"}:
+        return False
+    if value in {"live", "prod", "production"}:
+        return True
+    # Unknown -> conservative: treat as live (no stub fallback).
+    return True
+
+
 async def _rpc(ctx: ExecutionContext, *, method: str, params: list[Any], connected: ConnectedAccountRef | None) -> Any:
     rpc_url = _rpc_url_from_env()
-    if not rpc_url or not _has_connected_metamask(connected):
+    if not rpc_url:
+        if _is_live_environment(ctx):
+            raise _RpcMisconfiguration(
+                "METAMASK_RPC_URL is not set. Configure a public Ethereum JSON-RPC endpoint for live execution."
+            )
+        return _stub_rpc(method=method, params=params)
+
+    if not _has_connected_metamask(connected):
         return _stub_rpc(method=method, params=params)
 
     timeout = 8.0
@@ -543,6 +600,27 @@ def _rpc_failure(ctx: ExecutionContext, exc: _RpcError) -> ExecutionResult:
             "error_code": "rpc_error",
             "message": "RPC call failed.",
             "details": {"method": exc.method, "error": str(exc), "rpc_details": exc.details},
+            "phase": "phase1",
+            "provider": "metamask",
+        },
+        needs_approval=False,
+        units_consumed=1,
+    )
+
+
+def _rpc_misconfiguration(ctx: ExecutionContext, exc: _RpcMisconfiguration, *, method: str) -> ExecutionResult:
+    message = str(exc)
+    return ExecutionResult(
+        success=False,
+        execution_kind=ctx.execution_kind,
+        error_message=message,
+        provider_status="misconfigured",
+        output={"summary": message, "amount_usd": 0.0, "currency": "USD"},
+        receipt_summary={
+            "type": "error_receipt",
+            "error_code": "misconfiguration",
+            "message": message,
+            "details": {"method": method, "environment": _effective_environment_value(ctx)},
             "phase": "phase1",
             "provider": "metamask",
         },

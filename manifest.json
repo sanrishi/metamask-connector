@@ -19,7 +19,7 @@
   "support_contact": "https://github.com/taihei-05/siglume-api-sdk/issues",
   "example_prompts": [
     "What chain is my wallet connected to?",
-    "Check the ETH balance for 0x742d35CC6634c0532925a3B844bc9e7595F2Bd28",
+    "Check the ETH balance for 0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045",
     "Look up the receipt for tx 0x..."
   ],
   "compatibility_tags": ["web3", "ethereum", "wallet", "metamask"]
