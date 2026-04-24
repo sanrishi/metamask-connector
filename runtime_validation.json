@@ -6,8 +6,7 @@
   "test_auth_header_name": "X-Siglume-Review-Key",
   "test_auth_header_value": "sanchit-review-123",
   "request_payload": {
-    "action": "chain_id",
-    "dry_run": true
+    "action": "chain_id"
   },
   "expected_response_fields": ["summary", "chain_id", "amount_usd", "currency"],
   "timeout_seconds": 10
