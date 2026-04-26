@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "name": "MetaMask Connector",
   "job_to_be_done": "Check Ethereum wallet balances, chain ID, and transaction receipts via MetaMask-connected accounts, with strict EIP-55 address validation.",
-  "description": "Read-only Ethereum JSON-RPC lookups. Checks wallet balances, chain ID, and transaction receipts via MetaMask-connected accounts. No funds are custodied, no transactions are signed, and no value is transmitted.",
+  "description": "Read-only Ethereum JSON-RPC lookups. Checks wallet balances, chain ID, and transaction receipts. No funds are custodied, no transactions are signed, no value is transmitted.",
   "category": "finance",
   "permission_class": "read-only",
   "approval_mode": "auto",
