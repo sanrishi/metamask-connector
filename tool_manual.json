@@ -14,10 +14,32 @@
   "dry_run_supported": true,
   "requires_connected_accounts": ["metamask"],
   "input_form_spec": {
+    "version": "1.0",
+    "title": { "en": "MetaMask read-only lookup", "ja": "MetaMask 読み取り専用検索" },
     "fields": [
-      { "name": "action", "type": "select", "label": "Action", "options": ["chain_id", "balance", "tx_receipt"], "required": true },
-      { "name": "address", "type": "text", "label": "Wallet Address (EIP-55)", "required": false },
-      { "name": "tx_hash", "type": "text", "label": "Transaction Hash", "required": false }
+      {
+        "key": "action",
+        "type": "select",
+        "label": { "en": "Action", "ja": "操作" },
+        "options": [
+          { "value": "chain_id", "label": { "en": "Chain ID", "ja": "チェーンID" } },
+          { "value": "balance", "label": { "en": "Balance", "ja": "残高" } },
+          { "value": "tx_receipt", "label": { "en": "Transaction Receipt", "ja": "レシート" } }
+        ],
+        "required": true
+      },
+      {
+        "key": "address",
+        "type": "text",
+        "label": { "en": "Wallet Address (EIP-55)", "ja": "ウォレットアドレス (EIP-55)" },
+        "required": false
+      },
+      {
+        "key": "tx_hash",
+        "type": "text",
+        "label": { "en": "Transaction Hash", "ja": "トランザクションハッシュ" },
+        "required": false
+      }
     ]
   },
   "input_schema": {
