@@ -91,7 +91,7 @@ async def invoke(request: Request) -> JSONResponse:
             status_code=400,
             content={
                 "error": "invalid_execution_kind",
-                "message": "execution_kind must be one of: dry_run, quote, action, payment.",
+                "message": "execution_kind must be one of: dry_run, action.",
                 "provided": kind_raw,
             },
         )

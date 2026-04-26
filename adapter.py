@@ -40,7 +40,7 @@ class MetaMaskConnectorApp(AppAdapter):
             capability_key="metamask-connector",
             version="0.1.0",
             name="MetaMask Connector",
-            job_to_be_done="Check Ethereum wallet balances and transaction receipts via MetaMask-connected accounts (staged rollout).",
+            job_to_be_done="Check Ethereum wallet balances, chain ID, and transaction receipts via MetaMask-connected accounts, with strict EIP-55 address validation.",
             category=AppCategory.FINANCE,
             permission_class=PermissionClass.READ_ONLY,
             approval_mode=ApprovalMode.AUTO,
@@ -49,9 +49,12 @@ class MetaMaskConnectorApp(AppAdapter):
             permission_scopes=["wallet.balance", "wallet.read", "wallet.tx_status"],
             price_model=PriceModel.FREE,
             jurisdiction="US",
-            short_description="Phase 1 read-only wallet lookups. Phase 2/3 quote/payment are stubbed for safety.",
+            short_description=(
+                "Read-only Ethereum JSON-RPC lookups (chain id, balance, transaction receipt). "
+                "No funds are custodied, no transactions are signed, and no value is transmitted."
+            ),
             docs_url="https://github.com/sanrishi/metamask-connector",
-            support_contact="https://github.com/taihei-05/siglume-api-sdk/issues",
+            support_contact="https://github.com/sanrishi/metamask-connector/issues",
             example_prompts=[
                 "What chain is my wallet connected to?",
                 "Check the ETH balance for 0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045",
@@ -83,17 +86,17 @@ class MetaMaskConnectorApp(AppAdapter):
                 success=False,
                 execution_kind=ctx.execution_kind,
                 provider_status="not_implemented",
-                error_message="Phase 2/3 not yet implemented",
+                error_message="Unsupported execution kind for this read-only connector.",
                 output={
-                    "summary": "Phase 2/3 not yet implemented  stub only",
+                    "summary": "Unsupported execution kind for this read-only connector.",
                     "amount_usd": 0.0,
                     "currency": "USD",
                 },
                 receipt_summary={
                     "type": "error_receipt",
                     "error_code": "not_implemented",
-                    "message": "Phase 2/3 not yet implemented  stub only",
-                    "details": {"phase": "phase2_3_stub"},
+                    "message": "Unsupported execution kind for this read-only connector.",
+                    "details": {"execution_kind": str(ctx.execution_kind)},
                     "provider": "metamask",
                 },
                 needs_approval=False,
@@ -610,7 +613,7 @@ def _stub_rpc(*, method: str, params: list[Any]) -> Any:
             "status": "0x1",
             "gasUsed": hex(21_000)
         }
-    raise _RpcError(method=method, message="RPC method not supported in Phase 1 stub.", details={"params": params})
+    raise _RpcError(method=method, message="RPC method not supported in stub.", details={"params": params})
 
 
 # ---- EIP-55 checksum (Keccak-256) ----

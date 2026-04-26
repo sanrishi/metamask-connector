@@ -1,18 +1,25 @@
 {
   "tool_name": "metamask_connector",
-  "job_to_be_done": "Look up Ethereum network metadata, wallet balances, and transaction receipts using a connected MetaMask account, with strict address validation and staged safety controls.",
-  "summary_for_model": "Read-only Ethereum JSON-RPC lookups (chain id, balance, transaction receipt) for MetaMask-connected wallets. Requires EIP-55 checksummed addresses. Quote/payment flows are stubbed for staged rollout.",
+  "job_to_be_done": "Look up Ethereum network metadata, wallet balances, and transaction receipts using a connected MetaMask account, with strict EIP-55 address validation.",
+  "summary_for_model": "Read-only Ethereum JSON-RPC lookups (chain id, balance, transaction receipt) for MetaMask-connected wallets. Requires EIP-55 checksummed addresses. This API does not custody funds, sign transactions, transmit payments, or perform any regulated financial activity.",
   "trigger_conditions": [
     "The owner asks for the chain/network ID or basic network metadata for a wallet session.",
     "The owner asks to check the ETH balance of a specific Ethereum address (must be EIP-55 checksummed).",
     "The owner provides a transaction hash and asks for its on-chain receipt/status."
   ],
   "do_not_use_when": [
-    "The request would broadcast a transaction or sign data; Phase 2/3 are not implemented in this listing."
+    "The request would broadcast a transaction, sign data, transfer tokens, or interact with smart contracts; this API is read-only."
   ],
   "permission_class": "read_only",
   "dry_run_supported": true,
   "requires_connected_accounts": ["metamask"],
+  "input_form_spec": {
+    "fields": [
+      { "name": "action", "type": "select", "label": "Action", "options": ["chain_id", "balance", "tx_receipt"], "required": true },
+      { "name": "address", "type": "text", "label": "Wallet Address (EIP-55)", "required": false },
+      { "name": "tx_hash", "type": "text", "label": "Transaction Hash", "required": false }
+    ]
+  },
   "input_schema": {
     "type": "object",
     "properties": {
@@ -65,11 +72,11 @@
       },
       "amount_usd": {
         "type": "number",
-        "description": "Payment-tier required field. For Phase 1 read-only calls this is always 0."
+        "description": "Always 0 for this read-only API."
       },
       "currency": {
         "type": "string",
-        "description": "Payment-tier required field. Always 'USD'."
+        "description": "Always 'USD'."
       }
     },
     "required": ["summary", "amount_usd", "currency"],
@@ -89,7 +96,7 @@
     "If network mismatch, tell the owner the expected and actual chain ids and ask them to switch networks.",
     "If RPC timeout, ask the owner to retry or use a different RPC endpoint."
   ],
-  "approval_summary_template": "MetaMask Connector staged rollout: Phase 1 read-only lookup for {action}.",
+  "approval_summary_template": "Read-only Ethereum lookup: {action}.",
   "preview_schema": {
     "type": "object",
     "properties": {
@@ -103,6 +110,6 @@
     "additionalProperties": false
   },
   "idempotency_support": true,
-  "side_effect_summary": "Phase 1 has no external side effects (read-only JSON-RPC lookups). Phase 2/3 for signing/broadcast is intentionally not implemented in this listing.",
+  "side_effect_summary": "No external side effects. This API performs read-only JSON-RPC queries only.",
   "jurisdiction": "US"
 }
