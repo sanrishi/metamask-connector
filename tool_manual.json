@@ -15,34 +15,34 @@
   "requires_connected_accounts": ["metamask"],
   "input_form_spec": {
     "version": "1.0",
-    "title": { "en": "Wallet Lookup", "ja": "ウォレット照会" },
+    "title": "Wallet Lookup",
     "fields": [
       {
         "key": "action",
         "type": "select",
-        "label": { "en": "Action", "ja": "アクション" },
-        "description": { "en": "Operation to perform", "ja": "実行する操作" },
+        "label": "Action",
+        "description": "Operation to perform",
         "options": [
-          { "value": "chain_id", "label": { "en": "Get Chain ID", "ja": "チェーンID取得" } },
-          { "value": "balance", "label": { "en": "Get Balance", "ja": "残高照会" } },
-          { "value": "tx_receipt", "label": { "en": "Get Transaction Receipt", "ja": "トランザクション確認" } }
+          { "value": "chain_id", "label": "Get Chain ID" },
+          { "value": "balance", "label": "Get Balance" },
+          { "value": "tx_receipt", "label": "Get Transaction Receipt" }
         ],
         "required": true
       },
       {
         "key": "address",
         "type": "text",
-        "label": { "en": "Wallet Address", "ja": "ウォレットアドレス" },
-        "description": { "en": "EIP-55 checksummed Ethereum address", "ja": "EIP-55チェックサム済みアドレス" },
-        "placeholder": { "en": "0x...", "ja": "0x..." },
+        "label": "Wallet Address",
+        "description": "EIP-55 checksummed Ethereum address",
+        "placeholder": "0x...",
         "required": false
       },
       {
         "key": "tx_hash",
         "type": "text",
-        "label": { "en": "Transaction Hash", "ja": "トランザクションハッシュ" },
-        "description": { "en": "0x-prefixed 32-byte transaction hash", "ja": "0xプレフィックス付き32バイトハッシュ" },
-        "placeholder": { "en": "0x...", "ja": "0x..." },
+        "label": "Transaction Hash",
+        "description": "0x-prefixed 32-byte transaction hash",
+        "placeholder": "0x...",
         "required": false
       }
     ]
