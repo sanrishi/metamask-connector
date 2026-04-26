@@ -10,7 +10,7 @@
   "do_not_use_when": [
     "The request would broadcast a transaction or sign data; Phase 2/3 are not implemented in this listing."
   ],
-  "permission_class": "payment",
+  "permission_class": "read_only",
   "dry_run_supported": true,
   "requires_connected_accounts": ["metamask"],
   "input_schema": {
