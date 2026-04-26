@@ -104,18 +104,5 @@
   },
   "idempotency_support": true,
   "side_effect_summary": "Phase 1 has no external side effects (read-only JSON-RPC lookups). Phase 2/3 for signing/broadcast is intentionally not implemented in this listing.",
-  "quote_schema": {
-    "type": "object",
-    "properties": {
-      "amount_usd": { "type": "number" },
-      "currency": { "type": "string" },
-      "notes": { "type": "string" }
-    },
-    "required": ["amount_usd", "currency"],
-    "additionalProperties": false
-  },
-  "currency": "USD",
-  "settlement_mode": "embedded_wallet_charge",
-  "refund_or_cancellation_note": "No refunds for on-chain gas; subscription cancellations stop future access but do not reverse blockchain transactions.",
   "jurisdiction": "US"
 }

@@ -10,8 +10,6 @@
   "required_connected_accounts": ["metamask"],
   "permission_scopes": ["wallet.balance", "wallet.read", "wallet.tx_status"],
   "price_model": "free",
-  "price_value_minor": 0,
-  "currency": "USD",
   "jurisdiction": "US",
   "short_description": "Read-only wallet lookups now; quoting and submission are staged and stubbed for safety.",
   "docs_url": "https://github.com/sanrishi/metamask-connector",

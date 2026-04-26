@@ -48,8 +48,6 @@ class MetaMaskConnectorApp(AppAdapter):
             required_connected_accounts=["metamask"],
             permission_scopes=["wallet.balance", "wallet.read", "wallet.tx_status"],
             price_model=PriceModel.FREE,
-            price_value_minor=0,
-            currency="USD",
             jurisdiction="US",
             short_description="Phase 1 read-only wallet lookups. Phase 2/3 quote/payment are stubbed for safety.",
             docs_url="https://github.com/sanrishi/metamask-connector",
@@ -80,10 +78,27 @@ class MetaMaskConnectorApp(AppAdapter):
         )
 
     async def execute(self, ctx: ExecutionContext) -> ExecutionResult:
-        if ctx.execution_kind == ExecutionKind.QUOTE:
-            return await self.execute_quote(ctx)
-        if ctx.execution_kind == ExecutionKind.PAYMENT:
-            return await self.execute_payment(ctx)
+        if ctx.execution_kind in (ExecutionKind.QUOTE, ExecutionKind.PAYMENT):
+            return ExecutionResult(
+                success=False,
+                execution_kind=ctx.execution_kind,
+                provider_status="not_implemented",
+                error_message="Phase 2/3 not yet implemented",
+                output={
+                    "summary": "Phase 2/3 not yet implemented  stub only",
+                    "amount_usd": 0.0,
+                    "currency": "USD",
+                },
+                receipt_summary={
+                    "type": "error_receipt",
+                    "error_code": "not_implemented",
+                    "message": "Phase 2/3 not yet implemented  stub only",
+                    "details": {"phase": "phase2_3_stub"},
+                    "provider": "metamask",
+                },
+                needs_approval=False,
+                units_consumed=1,
+            )
 
         action = str(ctx.input_params.get("action") or "").strip().lower()
         if action in ("", "example", "default"):
@@ -104,52 +119,6 @@ class MetaMaskConnectorApp(AppAdapter):
                 "currency": "USD",
             },
             receipt_note="unknown_action",
-        )
-
-    # Phase 2/3: stub only (must exist)
-    async def execute_quote(self, ctx: ExecutionContext) -> ExecutionResult:
-        return ExecutionResult(
-            success=False,
-            execution_kind=ctx.execution_kind,
-            provider_status="not_implemented",
-            error_message="Phase 2/3 not yet implemented",
-            output={
-                "summary": "Phase 2/3 not yet implemented  stub only",
-                "amount_usd": 0.0,
-                "currency": "USD",
-            },
-            receipt_summary={
-                "type": "error_receipt",
-                "error_code": "not_implemented",
-                "message": "Phase 2/3 not yet implemented  stub only",
-                "details": {"phase": "phase2_3_stub"},
-                "provider": "metamask",
-            },
-            needs_approval=False,
-            units_consumed=1,
-        )
-
-    # Phase 2/3: stub only (must exist)
-    async def execute_payment(self, ctx: ExecutionContext) -> ExecutionResult:
-        return ExecutionResult(
-            success=False,
-            execution_kind=ctx.execution_kind,
-            provider_status="not_implemented",
-            error_message="Phase 2/3 not yet implemented",
-            output={
-                "summary": "Phase 2/3 not yet implemented  stub only",
-                "amount_usd": 0.0,
-                "currency": "USD",
-            },
-            receipt_summary={
-                "type": "error_receipt",
-                "error_code": "not_implemented",
-                "message": "Phase 2/3 not yet implemented  stub only",
-                "details": {"phase": "phase2_3_stub"},
-                "provider": "metamask",
-            },
-            needs_approval=False,
-            units_consumed=1,
         )
 
     async def _handle_chain_id(self, ctx: ExecutionContext) -> ExecutionResult:
