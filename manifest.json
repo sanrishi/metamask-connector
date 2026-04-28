@@ -13,7 +13,7 @@
   "price_model": "free",
   "jurisdiction": "US",
   "short_description": "Read-only Ethereum JSON-RPC lookups (chain id, balance, transaction receipt).",
-  "docs_url": "https://github.com/sanrishi/metamask-connector",
+  "docs_url": "https://github.com/sanrishi/metamask-connector/blob/main/README.md",
   "support_contact": "https://github.com/sanrishi/metamask-connector/issues",
   "example_prompts": [
     "What chain is my wallet connected to?",

@@ -53,7 +53,7 @@ class MetaMaskConnectorApp(AppAdapter):
                 "Read-only Ethereum JSON-RPC lookups (chain id, balance, transaction receipt). "
                 "No funds are custodied, no transactions are signed, and no value is transmitted."
             ),
-            docs_url="https://github.com/sanrishi/metamask-connector",
+            docs_url="https://github.com/sanrishi/metamask-connector/blob/main/README.md",
             support_contact="https://github.com/sanrishi/metamask-connector/issues",
             example_prompts=[
                 "What chain is my wallet connected to?",
